@@ -1,6 +1,6 @@
-import cStringIO, sys
-import libpry
+import sys
 from netlib import wsgi, odict
+from six.moves import cStringIO
 
 
 def treq():
