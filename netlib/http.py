@@ -1,5 +1,10 @@
-import string, urlparse
-import odict
+import string
+from . import odict
+
+try:
+    import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 class HttpError(Exception):
     def __init__(self, code, msg):

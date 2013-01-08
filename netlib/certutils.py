@@ -3,7 +3,7 @@ from pyasn1.type import univ, constraint, char, namedtype, tag
 from pyasn1.codec.der.decoder import decode
 from pyasn1.error import PyAsn1Error
 import OpenSSL
-import tcp
+import netlib
 
 CERT_SLEEP_TIME = 1
 CERT_EXPIRY = str(365 * 3)
@@ -278,7 +278,7 @@ class SSLCert:
 
 
 def get_remote_cert(host, port, sni):
-    c = tcp.TCPClient(host, port)
+    c = netlib.tcp.TCPClient(host, port)
     c.connect()
     c.convert_to_ssl(sni=sni)
     return c.cert

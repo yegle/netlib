@@ -1,6 +1,12 @@
-import cStringIO, threading, Queue, time
+import threading, time
 from netlib import tcp, certutils
 import tutils
+from six.moves import cStringIO
+
+try:
+    import Queue
+except ImportError:
+    import queue as Queue
 
 class ServerThread(threading.Thread):
     def __init__(self, server):

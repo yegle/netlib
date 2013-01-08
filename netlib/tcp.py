@@ -1,6 +1,6 @@
 import select, socket, threading, traceback, sys, time
 from OpenSSL import SSL
-import certutils
+import netlib
 
 SSLv2_METHOD = SSL.SSLv2_METHOD
 SSLv3_METHOD = SSL.SSLv3_METHOD
@@ -86,7 +86,7 @@ class Writer(_FileLike):
         try:
             if hasattr(self.o, "flush"):
                 self.o.flush()
-        except socket.error, v:
+        except socket.error as v:
             raise NetLibDisconnect(str(v))
 
     def write(self, v):
@@ -99,7 +99,7 @@ class Writer(_FileLike):
                     r = self.o.write(v)
                     self.add_log(v[:r])
                     return r
-            except (SSL.Error, socket.error), v:
+            except (SSL.Error, socket.error) as v:
                 raise NetLibDisconnect(str(v))
 
 
@@ -129,7 +129,7 @@ class Reader(_FileLike):
                 raise NetLibTimeout
             except socket.error:
                 raise NetLibDisconnect
-            except SSL.SysCallError, v:
+            except SSL.SysCallError as v:
                 raise NetLibDisconnect
             if not data:
                 break
@@ -181,9 +181,9 @@ class TCPClient:
         self.connection.set_connect_state()
         try:
             self.connection.do_handshake()
-        except SSL.Error, v:
+        except SSL.Error as v:
             raise NetLibError("SSL handshake error: %s"%str(v))
-        self.cert = certutils.SSLCert(self.connection.get_peer_certificate())
+        self.cert = netlib.certutils.SSLCert(self.connection.get_peer_certificate())
         self.rfile.set_descriptor(self.connection)
         self.wfile.set_descriptor(self.connection)
 
@@ -194,7 +194,7 @@ class TCPClient:
             connection.connect((addr, self.port))
             self.rfile = Reader(connection.makefile('rb', self.rbufsize))
             self.wfile = Writer(connection.makefile('wb', self.wbufsize))
-        except socket.error, err:
+        except socket.error as err:
             raise NetLibError('Error connecting to "%s": %s' % (self.host, err))
         self.connection = connection
 
@@ -251,7 +251,7 @@ class BaseHandler:
         # SNI callback happens during do_handshake()
         try:
             self.connection.do_handshake()
-        except SSL.Error, v:
+        except SSL.Error as v:
             raise NetLibError("SSL handshake error: %s"%str(v))
         self.rfile.set_descriptor(self.connection)
         self.wfile.set_descriptor(self.connection)
@@ -300,7 +300,7 @@ class BaseHandler:
                 self.connection.shutdown()
             else:
                 self.connection.shutdown(socket.SHUT_RDWR)
-        except (socket.error, SSL.Error), v:
+        except (socket.error, SSL.Error) as v:
             # Socket probably already closed
             pass
         self.connection.close()

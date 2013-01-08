@@ -1,5 +1,6 @@
-import cStringIO, urllib, time, sys, traceback
-import odict
+import urllib, time, sys, traceback
+import netlib
+from six.moves import cStringIO
 
 
 class ClientConn:
@@ -112,13 +113,13 @@ class WSGIAdaptor:
             if exc_info:
                 try:
                     if state["headers_sent"]:
-                        raise exc_info[0], exc_info[1], exc_info[2]
+                        raise (exc_info[0], exc_info[1], exc_info[2])
                 finally:
                     exc_info = None
             elif state["status"]:
                 raise AssertionError('Response already started')
             state["status"] = status
-            state["headers"] = odict.ODictCaseless(headers)
+            state["headers"] = netlib.odict.ODictCaseless(headers)
             return write
 
         errs = cStringIO.StringIO()
@@ -128,12 +129,12 @@ class WSGIAdaptor:
                 write(i)
             if not state["headers_sent"]:
                 write("")
-        except Exception, v:
+        except Exception as v:
             try:
                 s = traceback.format_exc()
                 errs.write(s)
                 self.error_page(soc, state["headers_sent"], s)
-            except Exception, v:    # pragma: no cover
+            except Exception as v:    # pragma: no cover
                 pass                # pragma: no cover
         return errs.getvalue()
 

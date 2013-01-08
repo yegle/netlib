@@ -1,6 +1,8 @@
-import cStringIO, textwrap
+import textwrap
 from netlib import http, odict
 import tutils
+
+from six.moves import cStringIO
 
 def test_httperror():
     e = http.HttpError(404, "Not found")
